@@ -107,7 +107,7 @@ func ReadByte(pid int, address int) (byte, error) {
 	}
 	defer CloseHandle(process)
 	var tempData byte
-	if err := readProcessMemory(process, uintptr(address), (*byte)(&tempData), 1, nil); err != nil {
+	if err := readProcessMemory(process, uintptr(address), &tempData, 1, nil); err != nil {
 		return 0, err
 	}
 	return tempData, nil
@@ -120,7 +120,7 @@ func WriteByte(pid int, address int, value byte) error {
 		return err
 	}
 	defer CloseHandle(process)
-	return readProcessMemory(process, uintptr(address), (*byte)(&value), 1, nil)
+	return readProcessMemory(process, uintptr(address), &value, 1, nil)
 }
 
 // ReadFloat 读内存浮点型
@@ -179,7 +179,7 @@ func ReadString(pid int, address int, size int) (string, error) {
 	}
 	defer CloseHandle(process)
 	tempData := make([]byte, size)
-	if err := readProcessMemory(process, uintptr(address), (*byte)(unsafe.Pointer(&tempData)), uint32(size), nil); err != nil {
+	if err := readProcessMemory(process, uintptr(address), &tempData[0], uint32(size), nil); err != nil {
 		return "", err
 	}
 	return string(tempData[:]), nil
@@ -193,7 +193,7 @@ func WriteString(pid int, address int, value string) error {
 	}
 	defer CloseHandle(process)
 	var tempData = []byte(value)
-	return writeProcessMemory(process, uintptr(address), (*byte)(unsafe.Pointer(&tempData)), uint32(len(tempData)), nil)
+	return writeProcessMemory(process, uintptr(address), &tempData[0], uint32(len(tempData)), nil)
 }
 
 // ReadBytes 读内存字节集
@@ -204,7 +204,7 @@ func ReadBytes(pid int, address int, size int) ([]byte, error) {
 	}
 	defer CloseHandle(process)
 	tempData := make([]byte, size)
-	if err := readProcessMemory(process, uintptr(address), (*byte)(unsafe.Pointer(&tempData)), uint32(size), nil); err != nil {
+	if err := readProcessMemory(process, uintptr(address), &tempData[0], uint32(size), nil); err != nil {
 		return nil, err
 	}
 	return tempData, nil
@@ -217,5 +217,5 @@ func WriteBytes(pid int, address int, value []byte) error {
 		return err
 	}
 	defer CloseHandle(process)
-	return writeProcessMemory(process, uintptr(address), (*byte)(unsafe.Pointer(&value)), uint32(len(value)), nil)
+	return writeProcessMemory(process, uintptr(address), &value[0], uint32(len(value)), nil)
 }
